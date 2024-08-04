@@ -6,6 +6,7 @@ from django.db.models import Sum
 class Author(models.Model):
     authorUser = models.OneToOneField(User, on_delete=models.CASCADE)
     ratingAuthor = models.SmallIntegerField(default=0)
+
     def update_rating(self):
         postRat = self.post_set.aggregate(postRating=Sum('rating'))
         pRat = 0
@@ -32,23 +33,25 @@ class Post(models.Model):
         (ARTICLE, 'Статья'),
     )
     categoryType = models.CharField(max_length=2, choices=CATEGORY_CHOICES, default=ARTICLE)
-    dateCreation = models.DateTimeField(auto_now_add=True)
+    added_at = models.DateTimeField(auto_now_add=True)   # оно неопределено
     postCategory = models.ManyToManyField(Category, through='PostCategory')
     title = models.CharField(max_length=128)
     text = models.TextField()
     rating = models.SmallIntegerField(default=0)
 
+    type = models.CharField(max_length=10, choices=[('news', 'Новость'), ('article', 'Статья')])
+
 
     def like(self):
         self.rating += 1
         self.save()
+
     def dislike(self):
         self.rating -= 1
         self.save()
 
     def preview(self):
         return self.text[0:123] + '...'
-
 
 
 class PostCategory(models.Model):
@@ -73,5 +76,5 @@ class Comment(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length = 255)
-    price = models.FloatField(default = 0.0)
+    name = models.CharField(max_length=255)
+    price = models.FloatField(default=0.0)
